@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
-const passportLocalMongoose = require("passport-local-mongoose");
+const passportLocalMongooseEmail = require("passport-local-mongoose-email");
+const pwd = require("pwd");
 
 const UserSchema = new Schema({
     email: { type: String, required: true, unique: true },
@@ -14,7 +15,14 @@ const UserSchema = new Schema({
     postIds: [],
 });
 
-UserSchema.plugin(passportLocalMongoose);
+UserSchema.plugin(passportLocalMongooseEmail);
+
+UserSchema.methods.validPassword = function (password) {
+    return pwd.hash(password, this.salt).then((result) => {
+        if (this.hash === result.hash) return true;
+        return false;
+    });
+};
 
 const User = mongoose.model("User", UserSchema);
 

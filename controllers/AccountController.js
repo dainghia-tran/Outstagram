@@ -13,18 +13,40 @@ exports.signUp = (req, res) => {
             });
         } else {
             res.statusCode = 200;
-            res.json({
-                success: true,
-                message: "Your account has been created!",
-            });
+            let verifyURL = `${req.protocol}://${req.get(
+                "host"
+            )}/account/verify-email?token=${usr.authToken}`;
+
+            try {
+                new Email(usr, verifyURL).sendVerify();
+                res.json({
+                    success: "true",
+                    message:
+                        "Email verification has been sent, check your email.",
+                });
+            } catch (error) {
+                usr.authToken = undefined;
+                usr.save();
+                res.json({
+                    success: "true",
+                    message: "Something went wrong, please try again.",
+                });
+            }
         }
     });
 };
 
-exports.signIn = (req, res) => {
-    res.json({ success: true, message: "Logged in successfully" });
-    res.redirect("/");
+exports.verifiEmail = (req, res) => {
+    User.verifyEmail(req.query.token, (err, existingAuthToken) => {
+        if (err) console.log("Something went wrong");
+        console.log(existingAuthToken);
+        res.json({ message: "Verified" });
+    });
 };
+
+exports.signIn = (req, res) => {
+    return res.send(req.user);
+}
 
 exports.signOut = (req, res) => {
     if (req.session) {
@@ -33,7 +55,7 @@ exports.signOut = (req, res) => {
             if (err) {
                 console.log(err);
             } else {
-                res.clearCookie('session-id');
+                res.clearCookie("session-id");
                 res.json({ success: true, message: "Logged out successfully" });
             }
         });
@@ -41,4 +63,4 @@ exports.signOut = (req, res) => {
         res.statusCode = 403;
         res.json({ success: false, message: "You're not logged in" });
     }
-}
+};

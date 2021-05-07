@@ -8,10 +8,8 @@ require("dotenv").config();
 
 const cors = require("cors");
 const mongoose = require("mongoose");
-const passport = require("passport");
+const passport = require("./config/Passport");
 const session = require("express-session");
-const LocalStrategy = require("passport-local").Strategy;
-const User = require("./models/UserModel");
 const flash = require("connect-flash");
 
 //Routes
@@ -59,9 +57,6 @@ app.use(flash());
 //Passport
 app.use(passport.initialize());
 app.use(passport.session());
-passport.use(new LocalStrategy(User.authenticate()));
-passport.serializeUser(User.serializeUser());
-passport.deserializeUser(User.deserializeUser());
 
 app.use("/", indexRouter);
 app.use("/account", accountRouter);
