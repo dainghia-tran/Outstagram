@@ -1,5 +1,11 @@
-import express from express
+const express = require('express');
+const router = express.Router();
 
-const router = express.router();
+const PostController = require('../controllers/PostController');
+const middleware = require('../middleware/Auth');
 
-router.get('/id');
+router.get('/:id', PostController.getPost);
+
+router.post('/:id/delete', middleware.isAuthenticated, PostController.deletePost);
+
+module.exports = router;

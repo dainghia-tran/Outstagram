@@ -1,20 +1,20 @@
-var createError = require("http-errors");
-var express = require("express");
-var path = require("path");
-var cookieParser = require("cookie-parser");
-var logger = require("morgan");
+const createError = require("http-errors");
+const express = require("express");
+const path = require("path");
+const cookieParser = require("cookie-parser");
+const logger = require("morgan");
 
 require("dotenv").config();
 
 const cors = require("cors");
 const mongoose = require("mongoose");
-const passport = require("./config/Passport");
 const session = require("express-session");
 const flash = require("connect-flash");
 
-//Routes
+//Router
 const indexRouter = require("./routes/IndexRoutes");
 const accountRouter = require("./routes/AccountRoutes");
+const postRouter = require("./routes/PostRoutes");
 
 var app = express();
 
@@ -43,23 +43,12 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
-app.use(
-    session({
-        name: "session-id",
-        secret: "hello-world",
-        resave: false,
-        saveUninitialized: false,
-        cookie: { maxAge: 60000 },
-    })
-);
 app.use(flash());
 
-//Passport
-app.use(passport.initialize());
-app.use(passport.session());
-
+//Routes
 app.use("/", indexRouter);
 app.use("/account", accountRouter);
+app.use('/p', postRouter);
 
 app.listen(() => {
     console.log("Server is running on port: " + port);
