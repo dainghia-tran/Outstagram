@@ -33,7 +33,7 @@ exports.signUp = async (req, res) => {
             }
         );
 
-        res.status(200).json({ result, token });
+        res.status(200).json({ user, token });
     } catch (error) {
         console.log(error);
         res.status(400).json({ message: "Something went wrong" });
@@ -64,6 +64,6 @@ exports.signIn = async (req, res) => {
     }
 };
 
-exports.logout = (req, res) => {
-    res.status(200);
+exports.signOut = (req, res) => {
+    return res.status(200).json({ message: "Signed out" });
 };

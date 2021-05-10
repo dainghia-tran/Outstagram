@@ -6,6 +6,7 @@ const UserSchema = new Schema({
     fullName: String,
     username: { type: String, required: true, unique: true },
     password: { type: String, required: true },
+    avatar: { type: String},
     createAt: Number,
     lastLogin: Number,
     followers: [],

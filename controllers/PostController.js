@@ -2,19 +2,32 @@ const PostModel = require("../models/PostModel");
 const UserModel = require("../models/UserModel");
 const formidable = require("formidable");
 
-exports.getPost = async (req, res) => {
-    const postId = req.params.id;
+exports.getPosts = async (req, res) => {
+    const followings = req.headers.followings;
+    console.log(followings);
     try {
-        const post = await PostModel.findById(postId);
-        res.status(200).json(post);
+        await PostModel.find((err, docs) => {
+            if (err) {
+                console.log(err);
+                res.status(500).json(err);
+            }
+            const result = docs.filter((doc) => {
+                return followings.includes(doc.userId);
+            });
+
+            res.status(200).json(result);
+        });
     } catch (error) {
-        res.status(404).json({ message: "Post not found" });
+        console.log(error);
+        res.status(500).json(error);
     }
 };
 
 exports.createPost = async (req, res) => {
     const form = formidable.IncomingForm();
-    form.parse();
+    form.parse(req, (err, fields, files) => {
+        // const {captions, }
+    });
 };
 
 exports.reactPost = async (req, res) => {
