@@ -1,10 +1,17 @@
 const PostModel = require("../models/PostModel");
-const UserModel = require("../models/UserModel");
 const formidable = require("formidable");
+const cloudinary = require("cloudinary").v2;
+const path = require("path");
+const fs = require("fs");
+
+cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
 exports.getPosts = async (req, res) => {
     const followings = req.headers.followings;
-    console.log(followings);
     try {
         await PostModel.find((err, docs) => {
             if (err) {
@@ -15,7 +22,7 @@ exports.getPosts = async (req, res) => {
                 return followings.includes(doc.userId);
             });
 
-            res.status(200).json(result);
+            res.status(200).send(result);
         });
     } catch (error) {
         console.log(error);
@@ -23,10 +30,71 @@ exports.getPosts = async (req, res) => {
     }
 };
 
+const uploadPhoto = async (photo, photoArray) => {
+    const uploadedPath = photo.path;
+    let uploadedRes;
+    try {
+        uploadedRes = await cloudinary.uploader.upload(uploadedPath);
+    } catch (error) {
+        console.log(error);
+    }
+
+    photoArray.push(uploadedRes.secure_url);
+    fs.unlink(uploadedPath, function (err) {
+        if (err) throw err;
+        console.log("File is deleted!");
+    });
+    return photoArray;
+};
+
 exports.createPost = async (req, res) => {
     const form = formidable.IncomingForm();
-    form.parse(req, (err, fields, files) => {
-        // const {captions, }
+    form.uploadDir = path.join(__dirname, "/../uploads");
+    form.multiples = true;
+    form.keepExtensions = true;
+    form.maxFieldsSize = 10 * 1024 * 1024; //10MB
+    form.parse(req, async (err, fields, files) => {
+        if (err) return res.status(500).json(err.message);
+
+        const post = fields;
+
+        let photos = [];
+
+        if (files.photos != null) {
+            let collection = [];
+            //convert to an array for iterating
+            if (files.photos.length > 1) collection = files.photos;
+            else collection.push(files.photos);
+
+            for (const photo of collection) {
+                const uploadedPath = photo.path;
+                let uploadedRes;
+                try {
+                    uploadedRes = await cloudinary.uploader.upload(
+                        uploadedPath
+                    );
+                } catch (error) {
+                    console.log(error);
+                }
+
+                photos.push(uploadedRes.secure_url);
+                fs.unlink(uploadedPath, function (err) {
+                    if (err) throw err;
+                    console.log("File is deleted!");
+                });
+            }
+        }
+
+        post.photoSrcs = photos;
+        post.userId = req.userId;
+
+        try {
+            await PostModel.create(post);
+            res.status(200).json({ message: "Post successfully created" });
+        } catch (error) {
+            console.log(error);
+            res.status(500).json(error.message);
+        }
     });
 };
 
@@ -52,10 +120,7 @@ exports.reactPost = async (req, res) => {
 
         //update post
         try {
-            await PostModel.findOneAndUpdate(
-                { _id: postId },
-                post
-            );
+            await PostModel.findOneAndUpdate({ _id: postId }, post);
             res.status(200).json({ post, message: message });
         } catch (error) {
             console.log(error);

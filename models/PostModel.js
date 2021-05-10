@@ -6,7 +6,7 @@ const PostSchema = new Schema({
     userId: Schema.Types.ObjectId,
     captions: String,
     comments: [{ username: String, comment: String }],
-    creatAt: Number,
+    creatAt: { type:Number, default: Date.now },
     reacts: [],
     photoSrcs: [],
 });
