@@ -27,6 +27,7 @@ mongoose.connect(databaseUrl, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
     useCreateIndex: true,
+    useFindAndModify: true,
 });
 mongoose.connection.once("open", () => {
     console.log("Database connection established");
@@ -48,7 +49,7 @@ app.use(flash());
 //Routes
 app.use("/", indexRouter);
 app.use("/account", accountRouter);
-app.use('/p', postRouter);
+app.use("/p", postRouter);
 
 app.listen(() => {
     console.log("Server is running on port: " + port);

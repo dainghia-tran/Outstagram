@@ -12,6 +12,7 @@ const UserSchema = new Schema({
     followings: [],
     description: String,
     postIds: [],
+    saved: [{ postId: String }]
 });
 
 const User = mongoose.model("User", UserSchema);

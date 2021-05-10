@@ -8,13 +8,14 @@ exports.authenticate = (req, res, next) => {
         const secretKey = process.env.SECRET_KEY;
         if (token) {
             decodedData = jwt.verify(token, secretKey);
-
             req.userId = decodedData?.id;
+            req.username = decodedData?.username;
         } else {
-            return res.status(401).json({ message: "Unauthorized" });
+            return res.status(400).json({ message: "Token not found" });
         }
         next();
     } catch (error) {
         console.log(error);
+        return res.status(401).json({ message: "Unauthorized" });
     }
 };

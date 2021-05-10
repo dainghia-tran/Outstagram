@@ -1,11 +1,19 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
 
-const PostController = require('../controllers/PostController');
-const middleware = require('../middleware/Auth');
+const postController = require("../controllers/PostController");
+const middleware = require("../middleware/Auth");
 
-router.get('/:id', PostController.getPost);
+router.get("/:id", middleware.authenticate, postController.getPost);
 
-router.post('/:id/delete', middleware.isAuthenticated, PostController.deletePost);
+router.post('/create', middleware.authenticate, postController.createPost);
+
+router.put('/:id/react', middleware.authenticate, postController.reactPost);
+
+router.delete(
+    "/:id",
+    middleware.authenticate,
+    postController.deletePost
+);
 
 module.exports = router;

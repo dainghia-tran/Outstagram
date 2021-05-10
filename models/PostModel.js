@@ -7,6 +7,7 @@ const PostSchema = new Schema({
     captions: String,
     comments: [{ username: String, comment: String }],
     creatAt: Number,
+    reacts: [],
     photoSrcs: [],
 });
 
