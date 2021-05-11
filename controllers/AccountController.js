@@ -1,9 +1,10 @@
 const UserModel = require("../models/UserModel");
 const bcryptjs = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const { log } = require("debug");
 
 exports.signUp = async (req, res) => {
-    const { fullName, email, password, username } = req.body;
+    const { fullName, email, password, username } = req.body.user;
     try {
         const existingUsername = await UserModel.findOne({
             username: username,
@@ -68,7 +69,24 @@ exports.signOut = (req, res) => {
     return res.status(200).json({ message: "Signed out" });
 };
 
-exports.changePassword = async (req, res) => {};
+exports.changePassword = async (req, res) => {
+    const userId = req.userId;
+    const { oldPassword, newPassword } = req.body;
+    try {
+        const user = await UserModel.findById(userId);
+        const isValid = await bcryptjs.compare(oldPassword, user.password);
+        if (isValid) {
+            const hashedPassword = await bcryptjs.hash(newPassword, 12);
+            await UserModel.findByIdAndUpdate(userId, {
+                password: hashedPassword,
+            });
+            res.status(200).json({ message: "Password changed successfully" });
+        } else res.status(400).json({ message: "Old password is not correct" });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json(error.message);
+    }
+};
 
 exports.search = async (req, res) => {
     const keyword = req.query.keyword;
