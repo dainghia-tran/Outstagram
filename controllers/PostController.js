@@ -30,23 +30,6 @@ exports.getPosts = async (req, res) => {
     }
 };
 
-const uploadPhoto = async (photo, photoArray) => {
-    const uploadedPath = photo.path;
-    let uploadedRes;
-    try {
-        uploadedRes = await cloudinary.uploader.upload(uploadedPath);
-    } catch (error) {
-        console.log(error);
-    }
-
-    photoArray.push(uploadedRes.secure_url);
-    fs.unlink(uploadedPath, function (err) {
-        if (err) throw err;
-        console.log("File is deleted!");
-    });
-    return photoArray;
-};
-
 exports.createPost = async (req, res) => {
     const form = formidable.IncomingForm();
     form.uploadDir = path.join(__dirname, "/../uploads");
@@ -122,6 +105,30 @@ exports.reactPost = async (req, res) => {
         try {
             await PostModel.findOneAndUpdate({ _id: postId }, post);
             res.status(200).json({ post, message: message });
+        } catch (error) {
+            console.log(error);
+            res.status(500).json({ message: "Something went wrong" });
+        }
+    } catch (error) {
+        console.log(error);
+        res.status(404).json({ message: "Post not found" });
+    }
+};
+
+exports.commentPost = async (req, res) => {
+    const username = req.username;
+    const postId = req.params.id;
+    const comment = req.headers.comment;
+
+    try {
+        const userComment = { username: username, comment: comment };
+        //update post
+        try {
+            await PostModel.findOneAndUpdate(
+                { _id: postId },
+                { $push: { comments: userComment } }
+            );
+            res.status(200).json({ message: "Commented" });
         } catch (error) {
             console.log(error);
             res.status(500).json({ message: "Something went wrong" });
