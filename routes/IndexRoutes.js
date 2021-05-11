@@ -12,4 +12,6 @@ router.get("/posts", middleware.authenticate, postController.getPosts);
 
 router.get('/:param', userController.getUser);
 
+router;
+
 module.exports = router;

@@ -9,4 +9,6 @@ router.post("/signin", accountController.signIn);
 
 router.get("/signout", accountController.signOut);
 
+router.get('/search', accountController.search);
+
 module.exports = router;

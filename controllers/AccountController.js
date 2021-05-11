@@ -67,3 +67,16 @@ exports.signIn = async (req, res) => {
 exports.signOut = (req, res) => {
     return res.status(200).json({ message: "Signed out" });
 };
+
+exports.changePassword = async (req, res) => {};
+
+exports.search = async (req, res) => {
+    const keyword = req.query.keyword;
+    try {
+        const users = await UserModel.fuzzySearch(keyword);
+        res.status(200).json(users);
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ message: "Something went wrong" });
+    }
+};

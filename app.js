@@ -8,7 +8,6 @@ require("dotenv").config();
 
 const cors = require("cors");
 const mongoose = require("mongoose");
-const session = require("express-session");
 const flash = require("connect-flash");
 
 //Router
@@ -32,10 +31,6 @@ mongoose.connect(databaseUrl, {
 mongoose.connection.once("open", () => {
     console.log("Database connection established");
 });
-
-// view engine setup
-app.set("views", path.join(__dirname, "views"));
-app.set("view engine", "hbs");
 
 //Configurations
 app.use(cors());
