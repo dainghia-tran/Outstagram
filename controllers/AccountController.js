@@ -1,7 +1,10 @@
 const UserModel = require("../models/UserModel");
 const bcryptjs = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const { log } = require("debug");
+const formidable = require("formidable");
+const cloudinary = require("cloudinary").v2;
+const path = require("path");
+const fs = require("fs");
 
 exports.signUp = async (req, res) => {
     const { fullName, email, password, username } = req.body.user;
@@ -97,4 +100,46 @@ exports.search = async (req, res) => {
         console.log(error);
         res.status(500).json({ message: "Something went wrong" });
     }
+};
+
+exports.changeAvatar = async (req, res) => {
+    const userId = req.userId;
+
+    const form = formidable.IncomingForm();
+    form.uploadDir = path.join(__dirname, "/../uploads");
+    form.multiples = true;
+    form.keepExtensions = true;
+    form.maxFieldsSize = 10 * 1024 * 1024; //10MB
+    form.parse(req, async (err, fields, files) => {
+        if (err) return res.status(500).json(err.message);
+        let photoUrl;
+        if (files.photo != null) {
+            const uploadedPath = files.photo.path;
+            let uploadedRes;
+            try {
+                uploadedRes = await cloudinary.uploader.upload(uploadedPath);
+            } catch (error) {
+                console.log(error);
+            }
+
+            photoUrl = uploadedRes.secure_url;
+            fs.unlink(uploadedPath, function (err) {
+                if (err) throw err;
+                console.log("File is deleted!");
+            });
+        }
+
+        try {
+            const user = await UserModel.findByIdAndUpdate(userId, {
+                avatar: photoUrl,
+            });
+            res.status(200).json({
+                user,
+                message: "Avatar changed successfully",
+            });
+        } catch (error) {
+            console.log(error);
+            res.status(500).json({ message: "Something went wrong" });
+        }
+    });
 };

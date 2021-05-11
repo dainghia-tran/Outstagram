@@ -18,4 +18,6 @@ router.put(
     accountController.changePassword
 );
 
+router.put('/change-avatar', middleware.authenticate, accountController.changeAvatar);
+
 module.exports = router;
