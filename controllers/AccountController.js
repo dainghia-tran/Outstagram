@@ -113,7 +113,8 @@ exports.changeAvatar = async (req, res) => {
     form.parse(req, async (err, fields, files) => {
         if (err) return res.status(500).json(err.message);
         let photoUrl;
-        if (files.photo != null) {
+
+        if (files.photo.type != null) {
             const uploadedPath = files.photo.path;
             let uploadedRes;
             try {
