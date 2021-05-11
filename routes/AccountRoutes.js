@@ -27,7 +27,10 @@ router.put(
 //route: /account/change-avatar
 router.put('/change-avatar', middleware.authenticate, accountController.changeAvatar);
 
-//route: /account/follow
+//route: /account/follow (follow/unfollow a user)
 router.put("/follow", middleware.authenticate, accountController.follow);
+
+//route: /account/save (save/unsave a post)
+router.put('/save', middleware.authenticate, accountController.save);
 
 module.exports = router;

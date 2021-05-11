@@ -15,7 +15,7 @@ const UserSchema = new Schema({
     followings: [],
     description: String,
     postIds: [],
-    saved: [{ postId: String }],
+    saved: [],
 });
 
 UserSchema.plugin(mongooseFuzzySearching, { fields: ["fullName", "username"] });

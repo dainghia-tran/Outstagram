@@ -1,4 +1,5 @@
 const UserModel = require("../models/UserModel");
+const PostModel = require("../models/PostModel");
 const bcryptjs = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const formidable = require("formidable");
@@ -165,15 +166,44 @@ exports.follow = async (req, res) => {
                 return follower != userId;
             });
 
-            message = "Unfollowed";
+            message = "Unfollowed this user";
         } else {
             user.followings.push(targetId);
             target.followers.push(userId);
-            message = "Followed";
+            message = "Followed this user";
         }
 
         await UserModel.findByIdAndUpdate(userId, user);
         await UserModel.findByIdAndUpdate(targetId, target);
+
+        res.status(200).json({ followings: user.followings, message: message });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ message: "Something went wrong" });
+    }
+};
+
+exports.save = async (req, res) => {
+    const userId = req.userId;
+    const targetPostId = req.body.targetPostId;
+    console.log(targetPostId);
+
+    try {
+        let user = await UserModel.findById(userId);
+        let message;
+
+        const isSaved = user.saved.includes(targetPostId);
+        if (isSaved) {
+            user.saved = user.saved.filter((postId) => {
+                return postId != targetPostId;
+            });
+            message = "Removed this saved post";
+        } else {
+            user.saved.push(targetPostId);
+            message = "Saved this post";
+        }
+
+        await UserModel.findByIdAndUpdate(userId, user);
 
         res.status(200).json(message);
     } catch (error) {
