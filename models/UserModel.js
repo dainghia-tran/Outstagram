@@ -9,7 +9,7 @@ const UserSchema = new Schema({
     username: { type: String, required: true, unique: true },
     password: { type: String, required: true },
     avatar: { type: String, default: "" },
-    createAt: Number,
+    createAt: { type: Number, default: Date.now },
     lastLogin: Number,
     followers: [],
     followings: [],

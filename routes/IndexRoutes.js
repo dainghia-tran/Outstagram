@@ -6,12 +6,18 @@ const middleware = require("../middleware/Auth");
 
 var router = express.Router();
 
+//route: /unauthorized
 router.get("/unauthorized", indexController.unauthorized);
 
+//route: /posts
 router.get("/posts", middleware.authenticate, postController.getPosts);
 
+//route: /suggest
+router.get('/suggest', middleware.authenticate, userController.getSuggestions);
+
+//route: /:{id || username}
 router.get('/:param', userController.getUser);
 
-router;
+// route: /
 
 module.exports = router;

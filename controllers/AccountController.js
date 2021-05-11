@@ -5,6 +5,7 @@ const formidable = require("formidable");
 const cloudinary = require("cloudinary").v2;
 const path = require("path");
 const fs = require("fs");
+const e = require("express");
 
 exports.signUp = async (req, res) => {
     const { fullName, email, password, username } = req.body.user;
@@ -143,4 +144,40 @@ exports.changeAvatar = async (req, res) => {
             res.status(500).json({ message: "Something went wrong" });
         }
     });
+};
+
+exports.follow = async (req, res) => {
+    const userId = req.userId;
+    const targetId = req.body.targetId;
+    try {
+        let user = await UserModel.findById(userId);
+        let target = await UserModel.findById(targetId);
+
+        let message;
+
+        const isFollowed = user.followings.includes(targetId);
+        if (isFollowed) {
+            user.followings = user.followings.filter((follower) => {
+                return follower != targetId;
+            });
+
+            target.followers = target.followers.filter((follower) => {
+                return follower != userId;
+            });
+
+            message = "Unfollowed";
+        } else {
+            user.followings.push(targetId);
+            target.followers.push(userId);
+            message = "Followed";
+        }
+
+        await UserModel.findByIdAndUpdate(userId, user);
+        await UserModel.findByIdAndUpdate(targetId, target);
+
+        res.status(200).json(message);
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ message: "Something went wrong" });
+    }
 };
