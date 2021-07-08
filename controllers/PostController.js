@@ -60,16 +60,18 @@ exports.createPost = async (req, res) => {
 
             for (const photo of collection) {
                 const uploadedPath = photo.path;
-                await cloudinary.uploader.upload(uploadedPath, (error, result) => {
-                    fs.unlink(uploadedPath, (err) => {
-                        if (err) return err;
-                        console.log("File is deleted!");
+                await cloudinary.uploader
+                    .upload(uploadedPath, (error, result) => {
+                        fs.unlink(uploadedPath, (err) => {
+                            if (err) return err;
+                            console.log("File is deleted!");
+                        });
+                        if (error) return error;
+                        photos.push(result.secure_url);
+                    })
+                    .catch((err) => {
+                        console.log(err);
                     });
-                    if (error) return error;
-                    photos.push(result.secure_url);
-                }).catch((err) => {
-                    console.log(err);;
-                });
             }
         }
 
@@ -130,7 +132,7 @@ exports.reactPost = async (req, res) => {
 exports.commentPost = async (req, res) => {
     const username = req.username;
     const postId = req.params.id;
-    const comment = req.headers.comment;
+    const comment = req.body.comment;
 
     try {
         const userComment = { username: username, comment: comment };
@@ -156,7 +158,7 @@ exports.deletePost = async (req, res) => {
     const userId = req.userId;
 
     const post = await PostModel.findById(postId);
-    if (userId !== post.userId)
+    if (userId != post.userId)
         res.status(403).json({
             message: "You do not have permission to delete this post.",
         });
