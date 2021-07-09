@@ -1,21 +1,33 @@
 const UserModel = require("../models/UserModel");
+const PostModel = require("../models/PostModel");
 
 exports.getUser = async (req, res) => {
     const param = req.params.param;
 
-    UserModel.find({ username: param }).exec(async (error, user) => {
-        if (user.length === 0) {
-            try {
-                user = await UserModel.findById(param);
-                console.log(user);
-                res.status(200).json(user);
-            } catch (error) {
-                console.log(error);
-                res.status(404).json({ message: "User not found" });
+    UserModel.find({ username: param })
+        .lean()
+        .exec(async (error, user) => {
+            if (user.length === 0) {
+                try {
+                    user = await UserModel.findById(param);
+                    console.log(user);
+                    res.status(200).json(user);
+                } catch (error) {
+                    console.log(error);
+                    res.status(404).json({ message: "User not found" });
+                }
+            } else {
+                let postList = [];
+                for (const postId of user[0].postIds) {
+                    const post = await PostModel.findById(postId).lean();
+                    if (post != null) postList.push(post);
+                }
+                user[0].postList = postList;
+                delete user[0].fullName_fuzzy;
+                delete user[0].username_fuzzy;
+                res.status(200).json(user[0]);
             }
-        } else
-            res.status(200).json(user);
-    });
+        });
 };
 
 exports.getSuggestions = async (req, res) => {
