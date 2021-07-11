@@ -35,7 +35,7 @@ exports.signUp = async (req, res) => {
             { email: user.email, username: user.username, id: user._id },
             secretKey,
             {
-                expiresIn: "24h",
+                expiresIn: "365d",
             }
         );
 
@@ -61,7 +61,7 @@ exports.signIn = async (req, res) => {
             { email: user.email, username: user.username, id: user._id },
             secretKey,
             {
-                expiresIn: "24h",
+                expiresIn: "365d",
             }
         );
         res.status(200).json({ user, token });

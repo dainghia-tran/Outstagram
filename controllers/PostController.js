@@ -81,13 +81,13 @@ exports.createPost = async (req, res) => {
         try {
             if (post.photoSrcs.length === 0)
                 throw new Error("Photo is required");
-            createdPost = await PostModel.create(post);
+            const createdPost = await PostModel.create(post);
             UserModel.findById(req.userId).exec(async (error, user) => {
                 if (error) throw error;
                 user.postIds.push(createdPost._id);
                 await UserModel.findByIdAndUpdate(req.userId, user);
             });
-            res.status(200).json({ message: "Post successfully created" });
+            res.status(200).json(createdPost);
         } catch (error) {
             console.log(error);
             res.status(500).json(error.message);
