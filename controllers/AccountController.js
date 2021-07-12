@@ -136,6 +136,7 @@ exports.changeAvatar = async (req, res) => {
             const user = await UserModel.findByIdAndUpdate(userId, {
                 avatar: photoUrl,
             });
+            user.avatar = photoUrl;
             res.status(200).json({
                 user,
                 message: "Avatar changed successfully",
