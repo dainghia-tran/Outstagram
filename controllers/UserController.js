@@ -32,7 +32,8 @@ exports.getUser = async (req, res) => {
 
 exports.getSuggestions = async (req, res) => {
     const userId = req.userId;
-    const followings = req.headers.followings;
+    const user = await UserModel.findById(userId);
+    const followings = user.followings;
 
     try {
         await UserModel.find((err, docs) => {

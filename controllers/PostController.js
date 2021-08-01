@@ -12,14 +12,15 @@ cloudinary.config({
 });
 
 exports.getPosts = async (req, res) => {
-    const followings = req.headers.followings;
+    const userId = req.userId;
+    const user = await UserModel.findById(userId);
     PostModel.find((err, docs) => {
         if (err) {
             console.log(err);
             res.status(500).json(err.message);
         }
         const result = docs.filter((doc) => {
-            return followings.includes(doc.userId);
+            return user.followings.includes(doc.userId);
         });
 
         res.status(200).send(result);
