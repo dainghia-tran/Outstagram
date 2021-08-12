@@ -5,6 +5,9 @@ const postController = require("../controllers/PostController");
 const middleware = require("../middleware/Auth");
 const { route } = require("./AccountRoutes");
 
+//route: /p
+router.get('/all', postController.getAllPosts);
+
 //route: /p/create
 router.post("/create", middleware.authenticate, postController.createPost);
 
