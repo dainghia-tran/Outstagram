@@ -1,5 +1,6 @@
 const UserModel = require("../models/UserModel");
 const PostModel = require("../models/PostModel");
+const NotificationModel = require("../models/NotificationModel");
 
 exports.getUser = async (req, res) => {
     const param = req.params.param;
@@ -48,6 +49,17 @@ exports.getSuggestions = async (req, res) => {
 
             res.status(200).json(result.slice(0, 5));
         });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json(error.message);
+    }
+};
+
+module.exports.getNotifications = async (req, res) => {
+    const userId = req.userId;
+    try {
+        const notifications = await NotificationModel.find({ userId: userId });
+        res.status(200).json(notifications);
     } catch (error) {
         console.log(error);
         res.status(500).json(error.message);

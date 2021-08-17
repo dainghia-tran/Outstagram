@@ -1,5 +1,5 @@
 const UserModel = require("../models/UserModel");
-const PostModel = require("../models/PostModel");
+const NotificationModel = require("../models/NotificationModel");
 const bcryptjs = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const formidable = require("formidable");
@@ -166,12 +166,26 @@ exports.follow = async (req, res) => {
             target.followers = target.followers.filter((follower) => {
                 return follower != userId;
             });
+            console.log("targetid: " + target);
+            NotificationModel.create({
+                senderUsername: user.username,
+                type: 0,
+                userId: target._id,
+                target: user._id,
+            });
 
             message = "Unfollowed this user";
         } else {
             user.followings.push(targetId);
             target.followers.push(userId);
             message = "Followed this user";
+
+            NotificationModel.create({
+                senderUsername: user.username,
+                type: 1,
+                userId: target._id,
+                target: user._id,
+            });
         }
 
         await UserModel.findByIdAndUpdate(userId, user);

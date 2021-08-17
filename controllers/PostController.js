@@ -4,6 +4,7 @@ const cloudinary = require("cloudinary").v2;
 const path = require("path");
 const fs = require("fs").promises;
 const UserModel = require("../models/UserModel");
+const NotificationModel = require("../models/NotificationModel");
 
 cloudinary.config({
     cloud_name: process.env.CLOUDINARY_NAME,
@@ -119,6 +120,12 @@ exports.reactPost = async (req, res) => {
         //update post
         try {
             await PostModel.findOneAndUpdate({ _id: postId }, post);
+            NotificationModel.create({
+                senderUsername: username,
+                type: 2,
+                userId: post.userId,
+                target: post._id,
+            });
             res.status(200).json({ post, message: message });
         } catch (error) {
             console.log(error);
@@ -139,10 +146,17 @@ exports.commentPost = async (req, res) => {
         const userComment = { username: username, comment: comment };
         //update post
         try {
-            await PostModel.findOneAndUpdate(
+            const post = await PostModel.findOneAndUpdate(
                 { _id: postId },
                 { $push: { comments: userComment } }
             );
+            NotificationModel.create({
+                senderUsername: username,
+                type: 3,
+                userId: post.userId,
+                target: post._id,
+                content: comment,
+            });
             res.status(200).json({ message: "Commented" });
         } catch (error) {
             console.log(error);

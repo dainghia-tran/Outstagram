@@ -12,6 +12,9 @@ router.get("/unauthorized", indexController.unauthorized);
 //route: /posts
 router.get("/posts", middleware.authenticate, postController.getPosts);
 
+//route: /notifications
+router.get("/notifications", middleware.authenticate, userController.getNotifications);
+
 //route: /suggest
 router.get('/suggest', middleware.authenticate, userController.getSuggestions);
 
